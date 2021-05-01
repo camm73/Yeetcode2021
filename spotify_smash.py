@@ -1,6 +1,7 @@
 import requests
 import datetime
 from heapq import heappop, heappush
+import sys
 
 # Get the top "song_count" songs from every user passed in
 # Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "song_data")
@@ -16,7 +17,7 @@ def get_users_top_songs(user_tokens: list = [], song_count: int = 100) -> dict:
         )
         if response.status_code != 200:
             print(f"Failed to user top songs: {response.json()}")
-            return {}
+            sys.exit(1)
 
         song_obj = response.json()
         # Parse request to get song data
@@ -43,6 +44,11 @@ def get_audio_features(user_tokens: list = [], song_dict: dict = {}) -> dict:
                 "Authorization": f"Bearer {user_tokens[0]}"
             }
         )
+
+        if response.status_code != 200:
+            print(f"Failed to get audio features for songID ({song_id}): {response.json()}")
+            sys.exit(1)
+
         song_response = response.json()
         song_features[song_id]["audio_features"] = song_response
     return song_features
@@ -63,17 +69,16 @@ def rank_songs(songs_features: dict = {}, rank_categories: list = []) -> dict:
                 heappush(category_heap[category], category_tuple)
     return category_heap
 
-'''
+
 token = ""
 rank_categories = ["danceability", "energy", "acousticness"]
 top_songs = get_users_top_songs([token], 5)
 audio_features = get_audio_features([token], top_songs)
 heap = rank_songs(audio_features, rank_categories)
 print(heap)
-'''
 
 # Gets top songs from each category
-# Returns a list of songIDs for the final playlist
+# Returns a list of songURIs for the final playlist
 def get_top_category_songs(ranked_songs: dict = {}, total_songs: int = 100) -> list:
     pass
 
@@ -81,7 +86,7 @@ def get_top_category_songs(ranked_songs: dict = {}, total_songs: int = 100) -> l
 # Make the final spotify playlist from the songs
 # Returns identifier of the new playlist
 def make_final_playlist(user_tokens: list = [], final_songs: list = [], user_id: str = "") -> str:
-    playlist = requests.post(
+    playlist_response = requests.post(
         f"https://api.spotify.com/v1/users/{user_id}/playlists",
         headers={
             "Authorization": f"Bearer {user_tokens[0]}"
@@ -93,12 +98,16 @@ def make_final_playlist(user_tokens: list = [], final_songs: list = [], user_id:
             "collaborative": True
         }
     )
-    playlist_id = playlist.json()["id"]
+    if playlist_response.status_code != 200:
+        print(f"Failed to make playlist: {playlist_response.json()}")
+        sys.exit(1)
+
+    playlist_id = playlist_response.json()["id"]
     
     curr_song = 0
     while curr_song < len(final_songs):
         end_index = min(curr_song+99, len(final_songs))
-        add_songs = requests.post(
+        add_songs_res = requests.post(
             f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks",
             headers={
                 "Authorization": f"Bearer {user_tokens[0]}"
@@ -107,6 +116,10 @@ def make_final_playlist(user_tokens: list = [], final_songs: list = [], user_id:
                 "uris": final_songs[curr_song:end_index]
             }
         )
+        if add_songs_res.status_code != 200:
+            print(f"Failed to add songs to playlist: {add_songs_res.json()}")
+            sys.exit(1)
+
         curr_song = end_index
     return playlist_id
 
@@ -114,12 +127,15 @@ def make_final_playlist(user_tokens: list = [], final_songs: list = [], user_id:
 # Add playlist to each user's account
 def add_playlist_to_accounts(user_tokens: list = [], playlist_id: str = '') -> None:
     for i in range(1, len(user_tokens)):
-        add_playlists = requests.put(
+        add_playlist_res = requests.put(
             f"https://api.spotify.com/v1/playlists/{playlist_id}/followers",
             headers={
                 "Authorization": f"Bearer {user_tokens[i]}"
             }
         )
+        
+        if add_playlist_res.status_code != 200:
+            print(f"Failed to add playlist to user ({user_tokens[i]}): {add_playlist_res.json()}")
 
 
 # Entry code and argument handling
