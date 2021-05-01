@@ -1,4 +1,5 @@
 import requests
+import heapq
 
 # Get the top "song_count" songs from every user passed in
 # Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "song_data")
@@ -32,30 +33,38 @@ def get_audio_features(user_tokens: list = [], song_dict: dict = {}) -> dict:
     for song_id in song_dict:
         response = requests.get(
             f"https://api.spotify.com/v1/audio-features/{song_id}",
-                    headers={
+            headers={
                 "Authorization": f"Bearer {token}"
             }
         )
         song_features = response.json()
-        song_dict[song_id] = {
+        song_features[song_id] = {
             "audio_features": song_features
         }
-    return song_dict
-
-token = "BQDX-LTdJinAex9w65O1bk6bS1rRvMdu2ka5MkVOCJ0hb7nubu-6XcH18gs-_3btrWiAEzQB8TNQ9e_EPJA4TsGL9sFGcmWeX8yJ0VX-milvl9qq8liSaCFMy_YWCk0cjUkcpYdyAvRiQZYVBR-TRzcuFQ"
-my_songs = get_users_top_songs([token], 2)
-my_audio = get_audio_features([token], my_songs)
-print(my_audio)
+    return song_features
 
 # Rank songs by certain features
 # Returns a max-heap for each category by score
 # Each heap is indexed in a dict by category name
-def rank_songs(songs_with_features: dict = {}, rank_categories: list = []) -> dict:
-    pass
+def rank_songs(songs_features: dict = {}, rank_categories: list = []) -> dict:
+    category_heap = {}
+    for song_id in songs_features:
+        for category in rank_categories:
+            category_score = songs_features[song_id]["audio_features"][category]
+            category_tuple = (-category_score, song_id)
+            if category in category_heap:
+                heappush(category_heap[category], category_tuple)
+            else:
+                category_heap[category] = []
+                heappush(category_heap[category], category_tuple)
+    return category_heap
 
-# key: song ID (uri) - for loop 
-# songs_with_features[songID][‘audio_features’]
-
+token = "BQAi5DugIYAeMqiXyt3MAsaZ2Tupb-2W2fGByw5MKxGv89dk59d8cCptuftiZwxIKargPgnBDwLLD7Ro5ph5VzhL1H9dvDhjNyYqYZaHLHQn6nAADnVvPuI8FNqd5Ym9Yy2tRSIwoYzyUsQ8rh4neggk_Q"
+rank_categories = ["danceability", "energy", "loudness"]
+top_songs = get_users_top_songs([token], 5)
+audio_features = get_audio_features([token], top_songs)
+heap = rank_songs(audio_features, rank_categories)
+print(heap)
 
 # Gets top songs from each category
 # Returns a list of songs for the final playlist
