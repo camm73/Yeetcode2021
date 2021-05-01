@@ -1,4 +1,5 @@
 import requests
+import argparse
 
 # Get the top "song_count" songs from every user passed in
 # Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "song_data")
@@ -63,4 +64,6 @@ def add_playlist_to_accounts(user_tokens: list = [], playlist_id: str = '') -> N
 
 # Entry code and argument handling
 if __name__ == "__main__":
-    pass
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tokens", dest="tokens", metavar="T", type=str, required=True, help="List of user Spotify tokens")
+    print(parser.parse_args())
