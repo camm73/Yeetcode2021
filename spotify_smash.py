@@ -69,9 +69,18 @@ if __name__ == "__main__":
     parser.add_argument("--tokens", dest="tokens", metavar="T", type=str, required=True, help="Comma separated list of user Spotify tokens")
     parser.add_argument("--song-count", dest="songCount", metavar="C", type=int, required=True, help="Number of songs in the final playlist")
     parser.add_argument("--audio-features", dest="audioFeatures", metavar='AF', type=str, required=True, help="Comma separated list of audio features to optimize for in playlist.")
-    parser.add_argument("--category-weights", dest="categoryWeights", metavar='W', type=str, required=False, help="Comma separated list of weights of each category. Same ordering as categories passed in.")
+    parser.add_argument("--feature-weights", dest="featureWeights", metavar='W', type=str, required=False, help="Comma separated list of weights of each audio feature. Same ordering as features passed in.")
     arguments = parser.parse_args()
     tokens = arguments.tokens.split(',')
     song_count = arguments.songCount
     audio_features = arguments.audioFeatures.split(',')
-    category_weights = arguments.categoryWeights.split(',')
+    if arguments.featureWeights is not None:
+        feature_weights = arguments.featureWeights.split(',')
+        new_weights = []
+        for elem in feature_weights:
+            new_weights.append(float(elem))
+        feature_weights = new_weights
+    else:
+        feature_weights = [(1/len(audio_features))] * len(audio_features)
+    
+    print(feature_weights)
