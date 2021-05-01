@@ -28,11 +28,24 @@ def get_users_top_songs(user_tokens: list = [], song_count: int = 100) -> dict:
 
 # Get audio features for each song in the dictionary
 # Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "song_data", "audio_features")
-def get_audio_features(user_tokens: list = [], initial_songs: dict = {}) -> dict:
-    pass
+def get_audio_features(user_tokens: list = [], song_dict: dict = {}) -> dict:
+    for song_id in song_dict:
+        response = requests.get(
+            f"https://api.spotify.com/v1/audio-features/{song_id}",
+                    headers={
+                "Authorization": f"Bearer {token}"
+            }
+        )
+        song_features = response.json()
+        song_dict[song_id] = {
+            "audio_features": song_features
+        }
+    return song_dict
 
-# expect dictinoary with key with song ID & another dictionary with total users + song data
-# add new key thats audio features with values 
+token = "BQDX-LTdJinAex9w65O1bk6bS1rRvMdu2ka5MkVOCJ0hb7nubu-6XcH18gs-_3btrWiAEzQB8TNQ9e_EPJA4TsGL9sFGcmWeX8yJ0VX-milvl9qq8liSaCFMy_YWCk0cjUkcpYdyAvRiQZYVBR-TRzcuFQ"
+my_songs = get_users_top_songs([token], 2)
+my_audio = get_audio_features([token], my_songs)
+print(my_audio)
 
 # Rank songs by certain features
 # Returns a max-heap for each category by score
