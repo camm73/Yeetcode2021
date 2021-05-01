@@ -2,7 +2,7 @@ import requests
 from heapq import heappop, heappush
 
 # Get the top "song_count" songs from every user passed in
-# Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "song_data")
+# Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "uri", "song_data")
 def get_users_top_songs(user_tokens: list = [], song_count: int = 100) -> dict:
     song_dict = {}
     for token in user_tokens:
@@ -22,17 +22,19 @@ def get_users_top_songs(user_tokens: list = [], song_count: int = 100) -> dict:
         item_list = song_obj['items']
         for single_song in item_list:
             song_id = single_song["id"]
+            song_uri = single_song["uri"]
             if song_id in song_dict:
                 song_dict[song_id]["total_users"] += 1
             else: 
                 song_dict[song_id] = {
                     "total_users": 1,
+                    "uri": song_uri,
                     "song_data": single_song
                 }
     return song_dict
 
 # Get audio features for each song in the dictionary
-# Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "song_data", "audio_features")
+# Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "uri", "song_data", "audio_features")
 def get_audio_features(user_tokens: list = [], song_dict: dict = {}) -> dict:
     song_features = song_dict
     for song_id in song_dict:
@@ -53,8 +55,9 @@ def rank_songs(songs_features: dict = {}, rank_categories: list = []) -> dict:
     category_heap = {}
     for song_id in songs_features:
         for category in rank_categories:
+            song_uri = songs_features[song_id]['uri']
             category_score = songs_features[song_id]["audio_features"][category]
-            category_tuple = (-category_score, song_id)
+            category_tuple = (-category_score, song_id, song_uri)
             if category in category_heap:
                 heappush(category_heap[category], category_tuple)
             else:
@@ -62,14 +65,13 @@ def rank_songs(songs_features: dict = {}, rank_categories: list = []) -> dict:
                 heappush(category_heap[category], category_tuple)
     return category_heap
 
-'''
-token = ""
+
+token = "BQAyDbpIldsy6Z_gobNKWdYVh7rTaBV2v-inJXqn7sH-Ui4Ya-XhZhamPf8_DCBCj_2NT0TWEwAC-MuggTl7neypvJgYPkSXO4l8d3qZBYvkLxBuvSzMXiR00nzlQ3drODKBtrEJeOXww4_Cq9FJH6yQWI1GgqvxsXvXZLVh4XIhvKBNfS7K3mFX62qM-NK74woLoGfTVibaOpmOmtjPMoa1Lo_vXfN2zIU6dL6tg37x72iN_FrrwYDD44xKThBalmUrybTfiQFqVXdz9FlWTkUA"
 rank_categories = ["danceability", "energy", "acousticness"]
 top_songs = get_users_top_songs([token], 5)
 audio_features = get_audio_features([token], top_songs)
 heap = rank_songs(audio_features, rank_categories)
 print(heap)
-'''
 
 # Gets top songs from each category
 # Returns a list of songIDs for the final playlist
