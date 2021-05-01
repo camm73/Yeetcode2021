@@ -39,7 +39,7 @@ def get_audio_features(user_tokens: list = [], song_dict: dict = {}) -> dict:
         response = requests.get(
             f"https://api.spotify.com/v1/audio-features/{song_id}",
             headers={
-                "Authorization": f"Bearer {token}"
+                "Authorization": f"Bearer {user_tokens[0]}"
             }
         )
         song_response = response.json()
