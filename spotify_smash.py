@@ -64,6 +64,12 @@ def add_playlist_to_accounts(user_tokens: list = [], playlist_id: str = '') -> N
 
 # Entry code and argument handling
 if __name__ == "__main__":
+    # Parse all arguments passed in
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tokens", dest="tokens", metavar="T", type=str, required=True, help="List of user Spotify tokens")
-    print(parser.parse_args())
+    parser.add_argument("--tokens", dest="tokens", metavar="T", type=str, required=True, help="Comma separated list of user Spotify tokens")
+    parser.add_argument("--song-count", dest="songCount", metavar="C", type=int, required=True, help="Number of songs in the final playlist")
+    parser.add_argument("--audio-features", dest="audioFeatures", metavar='AF', type=str, required=True, help="Comma separated list of audio features to optimize for in playlist.")
+    arguments = parser.parse_args()
+    tokens = arguments.tokens.split(',')
+    song_count = arguments.songCount
+    audio_features = arguments.audioFeatures.split(',')
