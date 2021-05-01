@@ -1,5 +1,21 @@
 import requests
 
+token = BQC2GCoyeW8GhM3179FtJpIqf7pJjoCxKktUIidluQ5qA5xmSjmqK_iwFZiHOuNiTNnem9r5a6UQRau54BMTFZe5FvNSaOul7p8edRrrjNh22tyPTHiXpTMnGIAgmJ4FLGFlx3lFKdrJatJVVigHCKkLNQ
+
+response = requests.get(
+            https://api.spotify.com/v1/me/top/{tracks},
+            headers={
+                "Authorization": f"Bearer {token}"
+            },
+            json={
+                "time_range": medium_term,
+                "limit": 50
+            }
+        )
+        tracks = response.json()
+        return tracks
+
+
 
 # Get the top "song_count" songs from every user passed in
 # Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "song_data")
@@ -7,7 +23,19 @@ def get_users_top_songs(user_tokens: list = [], song_count: int = 100) -> dict:
     song_dict = {}
     for token in user_tokens:
         # TODO: Make request for user's top songs
-
+        response = requests.get(
+            https://api.spotify.com/v1/me/top/{tracks},
+            headers={
+                "Authorization": f"Bearer {token}"
+            },
+            json={
+                "time_range": medium_term,
+                "limit": 50
+            }
+        )
+        tracks = response.json()
+        return tracks
+        
         # TODO: Parse request to get song data
 
         # TODO: Add to dictionary (or increment "total_users" field if it already exists)
@@ -20,11 +48,17 @@ def get_users_top_songs(user_tokens: list = [], song_count: int = 100) -> dict:
 def get_audio_features(user_tokens: list = [], initial_songs: dict = {}) -> dict:
     pass
 
+# expect dictinoary with key with song ID & another dictionary with total users + song data
+# add new key thats audio features with values 
+
 # Rank songs by certain features
 # Returns a max-heap for each category by score
 # Each heap is indexed in a dict by category name
 def rank_songs(songs_with_features: dict = {}, rank_categories: list = []) -> dict:
     pass
+
+# key: song ID (uri) - for loop 
+# songs_with_features[songID][‘audio_features’]
 
 
 # Gets top songs from each category
