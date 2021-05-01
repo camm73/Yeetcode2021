@@ -1,47 +1,30 @@
 import requests
 
-token = BQC2GCoyeW8GhM3179FtJpIqf7pJjoCxKktUIidluQ5qA5xmSjmqK_iwFZiHOuNiTNnem9r5a6UQRau54BMTFZe5FvNSaOul7p8edRrrjNh22tyPTHiXpTMnGIAgmJ4FLGFlx3lFKdrJatJVVigHCKkLNQ
-
-response = requests.get(
-            https://api.spotify.com/v1/me/top/{tracks},
-            headers={
-                "Authorization": f"Bearer {token}"
-            },
-            json={
-                "time_range": medium_term,
-                "limit": 50
-            }
-        )
-        tracks = response.json()
-        return tracks
-
-
-
 # Get the top "song_count" songs from every user passed in
 # Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "song_data")
 def get_users_top_songs(user_tokens: list = [], song_count: int = 100) -> dict:
     song_dict = {}
     for token in user_tokens:
-        # TODO: Make request for user's top songs
+        # Make request for user's top songs
         response = requests.get(
-            https://api.spotify.com/v1/me/top/{tracks},
+            f"https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit={min(song_count,50)}",
             headers={
                 "Authorization": f"Bearer {token}"
-            },
-            json={
-                "time_range": medium_term,
-                "limit": 50
             }
         )
-        tracks = response.json()
-        return tracks
-        
-        # TODO: Parse request to get song data
-
-        # TODO: Add to dictionary (or increment "total_users" field if it already exists)
-        pass
+        song_obj = response.json()
+        # Parse request to get song data
+        item_list = song_obj['items']
+        for single_song in item_list:
+            song_id = single_song["id"]
+            if song_id in song_dict:
+                song_dict[song_id]["total_users"] += 1
+            else: 
+                song_dict[song_id] = {
+                    "total_users": 1,
+                    "song_data": single_song
+                }
     return song_dict
-
 
 # Get audio features for each song in the dictionary
 # Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "song_data", "audio_features")
