@@ -1,10 +1,18 @@
-
+import requests
 
 
 # Get the top "song_count" songs from every user passed in
 # Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "song_data")
 def get_users_top_songs(user_tokens: list = [], song_count: int = 100) -> dict:
-    pass
+    song_dict = {}
+    for token in user_tokens:
+        # TODO: Make request for user's top songs
+
+        # TODO: Parse request to get song data
+
+        # TODO: Add to dictionary (or increment "total_users" field if it already exists)
+        pass
+    return song_dict
 
 
 # Get audio features for each song in the dictionary
