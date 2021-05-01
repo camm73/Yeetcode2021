@@ -1,4 +1,5 @@
 import requests
+import datetime
 from heapq import heappop, heappush
 
 # Get the top "song_count" songs from every user passed in
@@ -79,13 +80,42 @@ def get_top_category_songs(ranked_songs: dict = {}, total_songs: int = 100) -> l
 
 # Make the final spotify playlist from the songs
 # Returns identifier of the new playlist
-def make_final_playlist(user_tokens: list = [], final_songs: list = []) -> str:
-    pass
+def make_final_playlist(user_tokens: list = [], final_songs: list = [], user_id: str = "") -> str:
+    playlist = requests.post(
+        f"https://api.spotify.com/v1/users/{user_id}/playlists",
+        headers={
+            "Authorization": f"Bearer {user_tokens[0]}"
+        },
+        data = {
+            "name": f"Spotify Smash {datetime.datetime.now().isoformat()}",
+            "description": "A SUPER SMASHIN PLAYLIST",
+            "public": True,
+            "collaborative": True
+        }
+    )
+    playlist_id = playlist.json()["id"]
+
+    add_songs = requests.post(
+        f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks",
+        headers={
+            "Authorization": f"Bearer {user_tokens[0]}"
+        },
+        data = {
+            "uris": final_songs
+        }
+    )
+    return playlist_id
 
 
 # Add playlist to each user's account
 def add_playlist_to_accounts(user_tokens: list = [], playlist_id: str = '') -> None:
-    pass
+    for i in range(1, len(user_tokens)):
+        add_playlists = requests.put(
+            f"https://api.spotify.com/v1/playlists/{playlist_id}/followers",
+            headers={
+                "Authorization": f"Bearer {user_tokens[i]}"
+            }
+        )
 
 
 # Entry code and argument handling
