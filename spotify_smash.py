@@ -53,7 +53,7 @@ def get_top_category_songs(total_songs: int = 100) -> list:
 
 # Make the final spotify playlist from the songs
 # Returns identifier of the new playlist
-def make_final_playlist(user_tokens: list = [], user_tokensfinal_songs: list = []) -> str:
+def make_final_playlist(user_tokens: list = [], final_songs: list = []) -> str:
     pass
 
 
@@ -69,7 +69,9 @@ if __name__ == "__main__":
     parser.add_argument("--tokens", dest="tokens", metavar="T", type=str, required=True, help="Comma separated list of user Spotify tokens")
     parser.add_argument("--song-count", dest="songCount", metavar="C", type=int, required=True, help="Number of songs in the final playlist")
     parser.add_argument("--audio-features", dest="audioFeatures", metavar='AF', type=str, required=True, help="Comma separated list of audio features to optimize for in playlist.")
+    parser.add_argument("--category-weights", dest="categoryWeights", metavar='W', type=str, required=False, help="Comma separated list of weights of each category. Same ordering as categories passed in.")
     arguments = parser.parse_args()
     tokens = arguments.tokens.split(',')
     song_count = arguments.songCount
     audio_features = arguments.audioFeatures.split(',')
+    category_weights = arguments.categoryWeights.split(',')
