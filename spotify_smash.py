@@ -94,16 +94,20 @@ def make_final_playlist(user_tokens: list = [], final_songs: list = [], user_id:
         }
     )
     playlist_id = playlist.json()["id"]
-
-    add_songs = requests.post(
-        f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks",
-        headers={
-            "Authorization": f"Bearer {user_tokens[0]}"
-        },
-        data = {
-            "uris": final_songs
-        }
-    )
+    
+    curr_song = 0
+    while curr_song < len(final_songs):
+        end_index = min(curr_song+99, len(final_songs))
+        add_songs = requests.post(
+            f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks",
+            headers={
+                "Authorization": f"Bearer {user_tokens[0]}"
+            },
+            data = {
+                "uris": final_songs[curr_song:end_index]
+            }
+        )
+        curr_song = end_index
     return playlist_id
 
 
