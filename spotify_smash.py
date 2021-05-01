@@ -45,14 +45,14 @@ def rank_songs(songs_with_features: dict = {}, rank_categories: list = []) -> di
 
 
 # Gets top songs from each category
-# Returns a list of songs for the final playlist
-def get_top_category_songs(total_songs: int = 100) -> list:
+# Returns a list of songIDs for the final playlist
+def get_top_category_songs(ranked_songs: dict = {}, total_songs: int = 100) -> list:
     pass
 
 
 # Make the final spotify playlist from the songs
 # Returns identifier of the new playlist
-def make_final_playlist(user_tokens: list = [], user_tokensfinal_songs: list = []) -> str:
+def make_final_playlist(user_tokens: list = [], final_songs: list = []) -> str:
     pass
 
 
