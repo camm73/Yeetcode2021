@@ -4,6 +4,7 @@ import datetime
 from heapq import heappop, heappush
 import sys
 import json
+import random
 
 # Get the top "song_count" songs from every user passed in
 # Returns a dictionary from songID ("key") to another dictionary with keys ("total_users", "uri", "song_data")
@@ -48,7 +49,7 @@ def get_audio_features(user_tokens: list = [], song_dict: dict = {}) -> dict:
         response = requests.get(
             f"https://api.spotify.com/v1/audio-features/{song_id}",
             headers={
-                "Authorization": f"Bearer {user_tokens[0]}"
+                "Authorization": f"Bearer {user_tokens[random.randint(0, len(user_tokens)-1)]}"
             }
         )
 
