@@ -84,7 +84,31 @@ def rank_songs(songs_features: dict = {}, rank_categories: list = []) -> dict:
 # Gets top songs from each category
 # Returns a list of songURIs for the final playlist
 def get_top_category_songs(ranked_songs: dict = {}, total_songs: int = 100) -> list:
-    pass
+    song_arr = set()
+    done = False
+    while len(song_arr) < total_songs and not done:
+        for category in ranked_songs:
+            # Don't consider rest of categories if at the limit
+            if len(song_arr) == total_songs:
+                break
+            # Don't consider empty categories
+            elif len(ranked_songs[category]) == 0:
+                continue
+
+            song_uri = None
+            skip_category = False
+            # Pop from the heap until all duplicates are eliminated
+            while song_uri is None or song_uri in song_arr:
+                if len(ranked_songs[category]) == 0:
+                    skip_category = True
+                    break
+                song_uri = heappop(ranked_songs[category])[2]
+
+            if skip_category:
+                continue
+            song_arr.add(song_uri)
+    return list(song_arr)
+
 
 
 # Get the user profile and return the Spotify user ID
