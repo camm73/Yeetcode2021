@@ -198,10 +198,41 @@ if __name__ == "__main__":
     if arguments.featureWeights is not None:
         feature_weights = arguments.featureWeights.split(',')
         new_weights = []
+        total_weight = 0.0
         for elem in feature_weights:
+            total_weight += float(elem)
             new_weights.append(float(elem))
+
+        if total_weight > 1:
+            print("Weightings must add up to 100%!")
+            sys.exit(1)
         feature_weights = new_weights
     else:
         feature_weights = [(1/len(audio_features))] * len(audio_features)
+
+
+    print("==============Welcome to Spotify Smash!================")
     
-    print(feature_weights)
+    # =====================================================
+    #              Start making the playlist
+    # =====================================================
+    # Get all the top songs for each user
+    all_top_songs = get_users_top_songs(user_tokens=tokens, song_count=song_count)
+
+    # Get the audio features of these songs
+    all_audio_features = get_audio_features(user_tokens=tokens, song_dict=all_top_songs)
+
+    # Rank all of the songs by category
+    ranked_songs = rank_songs(songs_features=all_audio_features, rank_categories=audio_features)
+
+    # Get the top songs from each category to add to the final playlist
+    top_songs = get_top_category_songs(ranked_songs=ranked_songs, total_songs=song_count)
+
+    # Make the playlist with all these songs for the first user
+    final_playlist_id = make_final_playlist(user_tokens=tokens, final_songs=top_songs)
+
+    # Make every other user subscribe to the final playlist
+    add_playlist_to_accounts(user_tokens=tokens, playlist_id=final_playlist_id)
+
+    print("======================SUCCESS==========================")
+    print("A playlist has been created and added to your accounts!")
